@@ -71,7 +71,7 @@ module.exports =
     path = @path(d)
     if fill != "none" and stroke != "none"
       path.fillColor(fill, opacity).
-           strokeColor(stroke, opacity).fllAndStroke()
+           strokeColor(stroke, opacity).fillAndStroke()
     else
       path.fillColor(fill, opacity).fill() unless fill == "none"
       path.strokeColor(stroke, opacity).stroke() unless stroke == "none"
