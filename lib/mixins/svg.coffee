@@ -75,10 +75,12 @@ module.exports =
     y = Math.round(parseFloat(node.getAttribute("y")))
     transform = node.getAttribute("transform")
     textContent = node.textContent
+    fontSize = window.getComputedStyle(node).getPropertyValue("font-size")
+    fontSize = parseInt(fontSize)
 
     rotate = @_getSvgRotationValues(transform)
 
-    @fontSize(12)
+    @fontSize(fontSize)
     @fill("black")
     @rotate(rotate[0], origin: [rotate[1], rotate[2]]) if rotate
     @text(textContent, x, y, width: 100)
