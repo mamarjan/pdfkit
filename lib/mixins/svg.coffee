@@ -32,9 +32,10 @@ module.exports =
     y = node.getAttribute("y")
     fill = node.getAttribute("fill")
     stroke = node.getAttribute("stroke")
+    opacity = @_svgCalcOpacity(node)
     rect = @rect(x, y, width, height)
-    rect.fill(fill) unless fill == "none"
-    rect.stroke(stroke) unless stroke == "none"
+    rect.fillColor(fill, opacity).fill() unless fill == "none"
+    rect.strokeColor(stroke, opacity).stroke() unless stroke == "none"
 
   _parseLine: (node) ->
     stroke = node.getAttribute("stroke")
@@ -42,9 +43,11 @@ module.exports =
     y1 = node.getAttribute("y1")
     x2 = node.getAttribute("x2")
     y2 = node.getAttribute("y2")
+    opacity = @_svgCalcOpacity(node)
     @moveTo(x1, y1).
       lineTo(x2, y2).
-      stroke(stroke)
+      strokeColor(stroke, opacity).
+      stroke()
 
   _parseCircle: (node) ->
     x = Math.round(parseFloat(node.getAttribute("cx")))
@@ -52,23 +55,26 @@ module.exports =
     r = parseInt(node.getAttribute("r"))
     fill = node.getAttribute("fill")
     stroke = node.getAttribute("stroke")
+    opacity = @_svgCalcOpacity(node)
     circle = @circle(x, y, r)
-    circle.fill(fill) unless fill == "none"
-    circle.stroke(stroke) unless stroke == "none"
+    circle.fillColor(fill, opacity).fill() unless fill == "none"
+    circle.strokeColor(stroke, opacity).stroke() unless stroke == "none"
 
   _parsePath: (node) ->
     fill = node.getAttribute("fill")
     stroke = node.getAttribute("stroke")
     lineWidth = parseInt(node.getAttribute("stroke-width"))
     d = node.getAttribute("d")
+    opacity = @_svgCalcOpacity(node)
 
     @lineWidth(lineWidth) if lineWidth
     path = @path(d)
     if fill != "none" and stroke != "none"
-      path.fillAndStroke(fill, stroke)
+      path.fillColor(fill, opacity).
+           strokeColor(stroke, opacity).fllAndStroke()
     else
-      path.fill(fill) unless fill == "none"
-      path.stroke(stroke) unless stroke == "none"
+      path.fillColor(fill, opacity).fill() unless fill == "none"
+      path.strokeColor(stroke, opacity).stroke() unless stroke == "none"
 
   _parseText: (node) ->
     x = Math.round(parseFloat(node.getAttribute("x")))
@@ -79,9 +85,11 @@ module.exports =
     fontSize = parseInt(fontSize)
 
     rotate = @_getSvgRotationValues(transform)
+    opacity = @_svgCalcOpacity(node)
 
     @fontSize(fontSize)
-    @fill("black")
+    @fillColor("black", opacity)
+    @fill
     @rotate(rotate[0], origin: [rotate[1], rotate[2]]) if rotate
     @text(textContent, x, y, width: 100)
     @rotate(- rotate[0], origin: [rotate[1], rotate[2]]) if rotate
@@ -95,4 +103,12 @@ module.exports =
     else
       results = undefined
     results
+
+  _svgCalcOpacity: (node) ->
+    opacity = node.getAttribute("opacity")
+    if opacity is "" or opacity is null
+      opacity = 1
+    else
+      opacity = parseFloat(opacity)
+    return opacity
 
