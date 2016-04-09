@@ -2,14 +2,14 @@ module.exports =
   svg: (graph, x, y, options) ->
     width = graph.getAttribute("width")
     height = graph.getAttribute("height")
-    return @_parseNode node for node in graph.children
+    return (@_parseNode node for node in graph.children)
 
   _parseNode: (node, parent) ->
     switch node.nodeName
       when "svg"
         @_parseNode(node) for node in node.children
       when "g"
-        @_parseNode(node) for node in node.children
+        @_parseG(node)
       when "rect"
         @_parseRect(node)
       when "line"
@@ -24,6 +24,13 @@ module.exports =
         console.log("Undefined: " + node)
       else
         console.log("Unknown node type: " + node.nodeName)
+
+  _parseG: (node) ->
+    transform = node.getAttribute("transform")
+    translate = @_getSvgTranslationValues(transform)
+    @translate(translate[0], translate[1]) if translate
+    @_parseNode(node) for node in node.children
+    @translate(-translate[0], -translate[1]) if translate
 
   _parseRect: (node) ->
     width = node.getAttribute("width")
@@ -95,10 +102,20 @@ module.exports =
     @rotate(- rotate[0], origin: [rotate[1], rotate[2]]) if rotate
 
   _getSvgRotationValues: (text) ->
-    pattern = /rotate\(\d+,\d+,\d+\)/
+    pattern = /rotate\(\d+,\s*\d+,\s*\d+\)/
     if pattern.test(text)
       rotate = text.match(pattern)[0]
       values = rotate.split("(")[1].split(")")[0].split(",")
+      results = (Math.round(parseFloat(value)) for value in values)
+    else
+      results = undefined
+    results
+
+  _getSvgTranslationValues: (text) ->
+    pattern = /translate\(\d+,\s*\d+\)/
+    if pattern.test(text)
+      translate = text.match(pattern)[0]
+      values = translate.split("(")[1].split(")")[0].split(",")
       results = (Math.round(parseFloat(value)) for value in values)
     else
       results = undefined
