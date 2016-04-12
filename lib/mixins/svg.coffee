@@ -1,7 +1,8 @@
 module.exports = 
   svg: (graph, x, y, options) ->
-    width = graph.getAttribute("width")
+    width = parseInt(graph.getAttribute("width"))
     height = graph.getAttribute("height")
+    @scale(@page.width / width) if width
     return (@_parseNode node for node in graph.children)
 
   _parseNode: (node, parent) ->
@@ -68,12 +69,12 @@ module.exports =
     circle.strokeColor(stroke, opacity).stroke() unless stroke == "none"
 
   _parsePath: (node) ->
-    fill = node.getAttribute("fill")
-    console.log("Fill: " + fill)
+    fill = @_getFill(node)
     stroke = @_getStroke(node)
     lineWidth = parseInt(node.getAttribute("stroke-width"))
     d = node.getAttribute("d")
     opacity = @_svgCalcOpacity(node)
+    return if d is null or d == ""
 
     @lineWidth(lineWidth) if !lineWidth.isNaN?
     path = @path(d) unless fill == "none" and stroke == "none"
@@ -136,4 +137,11 @@ module.exports =
       return "none"
     else
       return stroke
+
+  _getFill: (node) ->
+    fill = node.getAttribute("fill")
+    if fill == ""
+      return "none"
+    else
+      return fill
 
