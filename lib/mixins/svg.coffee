@@ -38,14 +38,14 @@ module.exports =
     x = node.getAttribute("x")
     y = node.getAttribute("y")
     fill = node.getAttribute("fill")
-    stroke = node.getAttribute("stroke")
+    stroke = @_getStroke(node)
     opacity = @_svgCalcOpacity(node)
     rect = @rect(x, y, width, height)
     rect.fillColor(fill, opacity).fill() unless fill == "none"
     rect.strokeColor(stroke, opacity).stroke() unless stroke == "none"
 
   _parseLine: (node) ->
-    stroke = node.getAttribute("stroke")
+    stroke = @_getStroke(node)
     x1 = node.getAttribute("x1")
     y1 = node.getAttribute("y1")
     x2 = node.getAttribute("x2")
@@ -61,7 +61,7 @@ module.exports =
     y = Math.round(parseFloat(node.getAttribute("cy")))
     r = parseInt(node.getAttribute("r"))
     fill = node.getAttribute("fill")
-    stroke = node.getAttribute("stroke")
+    stroke = @_getStroke(node)
     opacity = @_svgCalcOpacity(node)
     circle = @circle(x, y, r)
     circle.fillColor(fill, opacity).fill() unless fill == "none"
@@ -69,13 +69,14 @@ module.exports =
 
   _parsePath: (node) ->
     fill = node.getAttribute("fill")
-    stroke = node.getAttribute("stroke")
+    console.log("Fill: " + fill)
+    stroke = @_getStroke(node)
     lineWidth = parseInt(node.getAttribute("stroke-width"))
     d = node.getAttribute("d")
     opacity = @_svgCalcOpacity(node)
 
-    @lineWidth(lineWidth) if lineWidth
-    path = @path(d)
+    @lineWidth(lineWidth) if !lineWidth.isNaN?
+    path = @path(d) unless fill == "none" and stroke == "none"
     if fill != "none" and stroke != "none"
       path.fillColor(fill, opacity).
            strokeColor(stroke, opacity).fillAndStroke()
@@ -128,4 +129,11 @@ module.exports =
     else
       opacity = parseFloat(opacity)
     return opacity
+
+  _getStroke: (node) ->
+    stroke = node.getAttribute("stroke")
+    if stroke == ""
+      return "none"
+    else
+      return stroke
 
