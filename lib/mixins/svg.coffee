@@ -64,9 +64,9 @@ module.exports =
     fill = node.getAttribute("fill")
     stroke = @_getStroke(node)
     opacity = @_svgCalcOpacity(node)
-    circle = @circle(x, y, r)
-    circle.fillColor(fill, opacity).fill() unless fill == "none"
-    circle.strokeColor(stroke, opacity).stroke() unless stroke == "none"
+    unless fill == "none" and stroke == "none"
+      circle = @circle(x, y, r)
+      @_svgFillAndStroke(circle, fill, stroke, opacity)
 
   _parsePath: (node) ->
     fill = @_getFill(node)
@@ -77,13 +77,9 @@ module.exports =
     return if d is null or d == ""
 
     @lineWidth(lineWidth) if !lineWidth.isNaN?
-    path = @path(d) unless fill == "none" and stroke == "none"
-    if fill != "none" and stroke != "none"
-      path.fillColor(fill, opacity).
-           strokeColor(stroke, opacity).fillAndStroke()
-    else
-      path.fillColor(fill, opacity).fill() unless fill == "none"
-      path.strokeColor(stroke, opacity).stroke() unless stroke == "none"
+    unless fill == "none" and stroke == "none"
+      path = @path(d)
+      @_svgFillAndStroke(path, fill, stroke, opacity)
 
   _parseText: (node) ->
     x = Math.round(parseFloat(node.getAttribute("x")))
@@ -144,4 +140,12 @@ module.exports =
       return "none"
     else
       return fill
+
+  _svgFillAndStroke: (doc, fill, stroke, opacity) ->
+    if fill != "none" and stroke != "none"
+      doc.fillColor(fill, opacity).
+          strokeColor(stroke, opacity).fillAndStroke()
+    else
+      soc.fillColor(fill, opacity).fill() unless fill == "none"
+      doc.strokeColor(stroke, opacity).stroke() unless stroke == "none"
 
