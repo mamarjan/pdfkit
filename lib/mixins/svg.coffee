@@ -88,6 +88,7 @@ module.exports =
     textContent = node.textContent
     fontSize = window.getComputedStyle(node).getPropertyValue("font-size")
     fontSize = parseInt(fontSize)
+    textAnchor = window.getComputedStyle(node).getPropertyValue("text-anchor")
 
     rotate = @_getSvgRotationValues(transform)
     opacity = @_svgCalcOpacity(node)
@@ -96,7 +97,12 @@ module.exports =
     @fillColor("black", opacity)
     @fill
     @rotate(rotate[0], origin: [rotate[1], rotate[2]]) if rotate
-    @text(textContent, x, y, width: 100)
+    if textAnchor == "end"
+      @text(textContent, x-100, y, width: 100, align: "right")
+    else if textAnchor == "middle"
+      @text(textContent, x-50, y, width: 100, align: "center")
+    else
+      @text(textContent, x, y, width: 100, align: "left")
     @rotate(- rotate[0], origin: [rotate[1], rotate[2]]) if rotate
 
   _getSvgRotationValues: (text) ->
