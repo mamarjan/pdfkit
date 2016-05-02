@@ -92,11 +92,18 @@ module.exports =
     dominantBaseline = window.getComputedStyle(node).getPropertyValue("dominant-baseline")
     if dominantBaseline == "middle"
       y = y - (fontSize/2)
+    fontWeight = window.getComputedStyle(node).getPropertyValue("font-weight")
+    makeBold = (fontWeight == "bold" ||
+                parseInt(fontWeight) > 600)
 
     rotate = @_getSvgRotationValues(transform)
     opacity = @_svgCalcOpacity(node)
 
     @fontSize(fontSize)
+    if makeBold
+      @font("Helvetica-Bold")
+    else
+      @font("Helvetica")
     @fillColor("black", opacity)
     @fill
     @rotate(rotate[0], origin: [rotate[1], rotate[2]]) if rotate
