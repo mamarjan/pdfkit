@@ -104,7 +104,7 @@ module.exports =
       @font("Helvetica-Bold")
     else
       @font("Helvetica")
-    @fillColor("black", opacity)
+    @fillColor(@_getComputedFill(node), opacity)
     @fill
     @rotate(rotate[0], origin: [rotate[1], rotate[2]]) if rotate
     if textAnchor == "end"
@@ -164,4 +164,14 @@ module.exports =
     else
       soc.fillColor(fill, opacity).fill() unless fill == "none"
       doc.strokeColor(stroke, opacity).stroke() unless stroke == "none"
+  _getComputedFill: (node) ->
+    fill = window.getComputedStyle(node).getPropertyValue("fill")
+    pattern = /rgb\(\d+,\s*\d+,\s*\d+\)/
+    if pattern.test(fill)
+      fill = fill.match(pattern)[0]
+      values = fill.split("(")[1].split(")")[0].split(",")
+      results = (Math.round(parseFloat(value)) for value in values)
+    else
+      results = "black"
+    results
 
