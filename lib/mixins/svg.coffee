@@ -89,6 +89,9 @@ module.exports =
     fontSize = window.getComputedStyle(node).getPropertyValue("font-size")
     fontSize = parseInt(fontSize)
     textAnchor = window.getComputedStyle(node).getPropertyValue("text-anchor")
+    dominantBaseline = window.getComputedStyle(node).getPropertyValue("dominant-baseline")
+    if dominantBaseline == "middle"
+      y = y - (fontSize/2)
 
     rotate = @_getSvgRotationValues(transform)
     opacity = @_svgCalcOpacity(node)
