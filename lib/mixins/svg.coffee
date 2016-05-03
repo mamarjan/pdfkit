@@ -46,7 +46,7 @@ module.exports =
       @_svgFillAndStroke(rect, fill, stroke, opacity)
 
   _parseLine: (node) ->
-    stroke = @_getStroke(node)
+    stroke = @_getComputedStroke(node)
     x1 = node.getAttribute("x1")
     y1 = node.getAttribute("y1")
     x2 = node.getAttribute("x2")
@@ -174,5 +174,16 @@ module.exports =
       results = (Math.round(parseFloat(value)) for value in values)
     else
       results = "black"
+    results
+
+  _getComputedStroke: (node) ->
+    stroke = window.getComputedStyle(node).getPropertyValue("stroke")
+    pattern = /rgb\(\d+,\s*\d+,\s*\d+\)/
+    if pattern.test(stroke)
+      stroke = stroke.match(pattern)[0]
+      values = stroke.split("(")[1].split(")")[0].split(",")
+      results = (Math.round(parseFloat(value)) for value in values)
+    else
+      results = stroke
     results
 
