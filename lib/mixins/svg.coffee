@@ -40,9 +40,11 @@ module.exports =
     y = node.getAttribute("y")
     fill = @_getFill(node)
     stroke = @_getStroke(node)
+    strokeWidth = @_getComputedStrokeWidth(node)
     opacity = @_svgCalcOpacity(node)
     unless fill == "none" and stroke == "none"
       rect = @rect(x, y, width, height)
+      rect.lineWidth(strokeWidth)
       @_svgFillAndStroke(rect, fill, stroke, opacity)
 
   _parseLine: (node) ->
@@ -51,10 +53,12 @@ module.exports =
     y1 = node.getAttribute("y1")
     x2 = node.getAttribute("x2")
     y2 = node.getAttribute("y2")
+    lineWidth = @_getComputedStrokeWidth(node)
     opacity = @_svgCalcOpacity(node)
-    @moveTo(x1, y1).
-      lineTo(x2, y2).
-      strokeColor(stroke, opacity).
+    line = @moveTo(x1, y1).
+      lineTo(x2, y2)
+    line.lineWidth(lineWidth) if !lineWidth.isNaN?
+    line.strokeColor(stroke, opacity).
       stroke()
 
   _parseCircle: (node) ->
@@ -71,7 +75,7 @@ module.exports =
   _parsePath: (node) ->
     fill = @_getFill(node)
     stroke = @_getStroke(node)
-    lineWidth = parseInt(node.getAttribute("stroke-width"))
+    lineWidth = @_getComputedStrokeWidth(node)
     d = node.getAttribute("d")
     opacity = @_svgCalcOpacity(node)
     return if d is null or d == ""
@@ -186,4 +190,10 @@ module.exports =
     else
       results = stroke
     results
+
+  _getComputedStrokeWidth: (node) ->
+    strokeWidth = window.getComputedStyle(node).getPropertyValue("stroke-width")
+    strokeWidth = parseInt(strokeWidth)
+    return 1 if strokeWidth.isNaN?
+    return strokeWidth
 
