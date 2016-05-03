@@ -38,12 +38,12 @@ module.exports =
     height = node.getAttribute("height")
     x = node.getAttribute("x")
     y = node.getAttribute("y")
-    fill = node.getAttribute("fill")
+    fill = @_getFill(node)
     stroke = @_getStroke(node)
     opacity = @_svgCalcOpacity(node)
-    rect = @rect(x, y, width, height)
-    rect.fillColor(fill, opacity).fill() unless fill == "none"
-    rect.strokeColor(stroke, opacity).stroke() unless stroke == "none"
+    unless fill == "none" and stroke == "none"
+      rect = @rect(x, y, width, height)
+      @_svgFillAndStroke(rect, fill, stroke, opacity)
 
   _parseLine: (node) ->
     stroke = @_getStroke(node)
@@ -61,7 +61,7 @@ module.exports =
     x = Math.round(parseFloat(node.getAttribute("cx")))
     y = Math.round(parseFloat(node.getAttribute("cy")))
     r = parseInt(node.getAttribute("r"))
-    fill = node.getAttribute("fill")
+    fill = @_getFill(node)
     stroke = @_getStroke(node)
     opacity = @_svgCalcOpacity(node)
     unless fill == "none" and stroke == "none"
@@ -162,8 +162,9 @@ module.exports =
       doc.fillColor(fill, opacity).
           strokeColor(stroke, opacity).fillAndStroke()
     else
-      soc.fillColor(fill, opacity).fill() unless fill == "none"
+      doc.fillColor(fill, opacity).fill() unless fill == "none"
       doc.strokeColor(stroke, opacity).stroke() unless stroke == "none"
+
   _getComputedFill: (node) ->
     fill = window.getComputedStyle(node).getPropertyValue("fill")
     pattern = /rgb\(\d+,\s*\d+,\s*\d+\)/
