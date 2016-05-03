@@ -73,16 +73,16 @@ module.exports =
       @_svgFillAndStroke(circle, fill, stroke, opacity)
 
   _parsePath: (node) ->
-    fill = @_getFill(node)
+    fill = @_getComputedFill(node)
     stroke = @_getStroke(node)
     lineWidth = @_getComputedStrokeWidth(node)
     d = node.getAttribute("d")
     opacity = @_svgCalcOpacity(node)
     return if d is null or d == ""
 
-    @lineWidth(lineWidth) if !lineWidth.isNaN?
     unless fill == "none" and stroke == "none"
       path = @path(d)
+      path.lineWidth(lineWidth)
       @_svgFillAndStroke(path, fill, stroke, opacity)
 
   _parseText: (node) ->
@@ -120,10 +120,10 @@ module.exports =
     @rotate(- rotate[0], origin: [rotate[1], rotate[2]]) if rotate
 
   _getSvgRotationValues: (text) ->
-    pattern = /rotate\(\d+,\s*\d+,\s*\d+\)/
+    pattern = /rotate\(\d+[,\s]+\d+[,\s]+\d+\)/
     if pattern.test(text)
       rotate = text.match(pattern)[0]
-      values = rotate.split("(")[1].split(")")[0].split(",")
+      values = rotate.split("(")[1].split(")")[0].split(/[,\s]+/)
       results = (Math.round(parseFloat(value)) for value in values)
     else
       results = undefined
@@ -177,7 +177,7 @@ module.exports =
       values = fill.split("(")[1].split(")")[0].split(",")
       results = (Math.round(parseFloat(value)) for value in values)
     else
-      results = "black"
+      results = fill
     results
 
   _getComputedStroke: (node) ->
